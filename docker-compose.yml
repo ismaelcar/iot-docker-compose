@@ -1,0 +1,93 @@
+version: "3"
+
+services:
+
+  nodered:
+    container_name: mynodered
+    build: ./nodered
+    environment:
+      - TZ=Europe/Berlin
+    networks:
+      - bi
+    ports:
+      - "1880:1880"
+    volumes:
+      - nodered:/data 
+    restart: on-failure
+
+  nodered-test:
+    container_name: mynodered-test
+    build: ./nodered
+    environment:
+      - TZ=Europe/Berlin
+    networks:
+      - bi
+    ports:
+      - "2880:1880"
+    volumes:
+      - nodered-test:/data 
+    restart: on-failure
+
+  mosquitto:
+    container_name: mosquitto
+    build: ./mosquitto
+    networks:
+      - bi
+    ports:
+      - "1883:1883"
+    volumes:
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_config:/mosquitto/config
+      - mosquitto_log:/mosquitto/log
+    restart: on-failure
+
+  portainer:
+    container_name: portainer
+    image: "portainer/portainer"
+    networks:
+      - bi
+    ports:
+      - "9000:9000"
+      - "8000:8000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    restart: on-failure
+
+  influxdb:
+    container_name: influxdb
+    image: "influxdb"
+    networks:
+      - bi
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb:/var/lib/influxdb 
+    restart: on-failure
+
+  grafana:
+    container_name: grafana
+    image: "grafana/grafana"
+    networks:
+      - bi
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana:/var/lib/grafana
+    environment:
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,natel-discrete-panel,briangann-gauge-panel,vonage-status-panel,neocat-cal-heatmap-panel
+    restart: on-failure
+
+volumes:
+  nodered:
+  nodered-test:
+  mosquitto_data:
+  mosquitto_config: 
+  mosquitto_log:
+  portainer_data:
+  influxdb:
+  grafana:
+
+networks:
+  bi:
+    
